@@ -1215,10 +1215,13 @@ class StatusResource:
 
 
 class HealthResource:
-    def on_get(self, req: falcon.Request, resp: falcon.Response):
+    def on_get(self, req: falcon.Request, resp: falcon.Response, check=None):
         from robotoff.health import health
 
-        message, status, headers = health.run()
+        if check:
+            message, status, headers = health.run(check)
+        else:
+            message, status, headers = health.run()
         resp.media = {
             "message": orjson.loads(message),
             "status": status,
@@ -1540,7 +1543,7 @@ api.add_route("/api/v1/questions/random", RandomQuestionsResource())
 api.add_route("/api/v1/questions/popular", PopularQuestionsResource())
 api.add_route("/api/v1/questions/unanswered", UnansweredQuestionCollection())
 api.add_route("/api/v1/status", StatusResource())
-api.add_route("/api/v1/health", HealthResource())
+api.add_route("/api/v1/health/{check}", HealthResource())
 api.add_route("/api/v1/users/statistics/{username}", UserStatisticsResource())
 api.add_route("/api/v1/predictions", PredictionCollection())
 api.add_route("/api/v1/images/prediction/collection", ImagePredictionCollection())
